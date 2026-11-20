@@ -56,7 +56,7 @@ for s in SC:
     else:
         TX["S" + s["scenario_id"][1]] = (s, s["transaction"])
 
-EXPECT = {"S5a": "release", "S5b": "release", "S5c": "escalate",
+EXPECT = {"S1": "clear", "S2": "release", "S3": "escalate", "S4": "escalate", "S5a": "release", "S5b": "release", "S5c": "escalate",
           "S6": "escalate", "S7": "release", "S8": "escalate"}
 
 
@@ -75,7 +75,7 @@ def latest_question(txn_id):
 
 
 def cmd_start(sid):
-    first = {"S5": "S5a", "S6": "S6", "S7": "S7", "S8": "S8"}[sid]
+    first = {"S1": "S1", "S2": "S2", "S3": "S3", "S4": "S4", "S5": "S5a", "S6": "S6", "S7": "S7", "S8": "S8"}[sid]
     code, out = bank("POST", "/admin/reset/%s" % CUSTOMER, {})
     print("reset:", code)
     if sid == "S7":
@@ -141,7 +141,9 @@ def cmd_check(tid):
     c.close()
     want = EXPECT[tid]
     decision = d[0] if d else None
-    if want == "release":
+    if want == "clear":
+        ok = active == 0 and released == 0 and case is None
+    elif want == "release":
         ok = decision == "release" and active == 0 and case is None
     else:
         ok = case is not None and released == 0
